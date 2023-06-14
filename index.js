@@ -11,7 +11,6 @@ app.use(express.json());
 app.get("/", (req, res) => {
   res.send("task management server is running");
 });
-console.log(process.env.DB_USER);
 
 const { MongoClient, ServerApiVersion } = require("mongodb");
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.BD_PASS}@cluster0.absippg.mongodb.net/?retryWrites=true&w=majority`;
@@ -28,6 +27,15 @@ const client = new MongoClient(uri, {
 async function run() {
   try {
     const taskCollocation = client.db("task-management").collection("task");
+
+    app.get("/tasks", async (req, res) => {
+      const result = await taskCollocation
+        .find()
+        .sort({ targetTime: -1 })
+        .toArray();
+      res.send(result);
+      console.log(result);
+    });
 
     app.post("/add-task", async (req, res) => {
       const data = req.body;
