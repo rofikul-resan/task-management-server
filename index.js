@@ -29,12 +29,8 @@ async function run() {
     const taskCollocation = client.db("task-management").collection("task");
 
     app.get("/tasks", async (req, res) => {
-      const result = await taskCollocation
-        .find()
-        .sort({ targetTime: -1 })
-        .toArray();
+      const result = await taskCollocation.find().toArray();
       res.send(result);
-      console.log(result);
     });
 
     app.post("/add-task", async (req, res) => {
@@ -51,6 +47,20 @@ async function run() {
         }
       }
       const result = await taskCollocation.insertOne(data);
+      res.send(result);
+    });
+
+    app.patch("/tasks/:id", async (req, res) => {
+      const id = req.params.id;
+      const { status } = req.body;
+      const result = await taskCollocation.updateOne(
+        { _id: new ObjectId(id) },
+        {
+          $set: {
+            status: status,
+          },
+        }
+      );
       res.send(result);
     });
 
